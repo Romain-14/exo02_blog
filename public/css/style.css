@@ -13,47 +13,30 @@ body {
 	font-size: 1.6rem;
 }
 
-.xl-txt {
-	font-size: 3.5rem;
-}
-
-.md-txt {
-	font-size: 2.8rem;
-}
-
-.sm-txt {
-	font-size: 1.9rem;
-}
 
 
 /****** HEADER *******/
 
-.blog-header {
+header {
 	background-image: url("../img/fond.jpg");
 	background-position: center;
 	background-size: cover;
 }
 
-.blog-header div {
-	background-color: rgba(0, 0, 0, 0.5);
-	padding: 100px 0 0;
-}
-
-.blog-header h1 {
+ h1 {
 	text-align: center;
 }
 
-.blog-header h1 a {
+ h1 a {
 	color: white;
-	font-size: 1.5em;
 }
 
-.blog-header nav {
+nav {
 	text-align: right;
 	padding: 50px;
 }
 
-.blog-header nav a {
+ nav a {
 	color: white;
 	margin: 10px;
 }
@@ -61,15 +44,6 @@ body {
 /****** MAIN  *******/
 main {
 	padding: 3% 10%;
-}
-
-main p {
-	text-align: center;
-}
-
-main h2 {
-	color: #9b9b9b;
-	text-align: center;
 }
 
 .back {
@@ -86,171 +60,88 @@ main h2 {
 	display: block;
 }
 
-.edit {
-	color: #0cd6b4;
-}
-
-.remove {
-	color: red;
-}
-/********** FORM ******/
-
-main form {
-	width: 40%;
-	margin: auto;
-	text-align: center;
-	border: 3px solid #9b9b9b;
-	padding: 25px 50px;
-	border-radius: 50px;
-}
-
-main form label {
-	color: #9b9b9b;
-	text-decoration: underline;
-}
-
-main form input {
-	display: block;
-	margin: 25px auto;
-	width: 70%;
-}
-
-main form textarea {
-	display: block;
-	margin: 25px auto;
-	width: 70%;
-	height: 120px;
-}
-
-main form input[type="submit"] {
-	height: 40px;
-	width: 50%;
-	background-color: #0cd6b4;
-	border: none;
-	border-radius: 10px;
-}
-
-main form select {
-	display: block;
-	margin: 25px auto;
-	width: 70%;
-	text-align: center;
-}
-
-/********** HOME ****/
-
-.home-list article {
-	/* text-align: left; */
-	list-style: none;
-	margin: 30px auto;
-	width: 50%;
-}
-
-.home-list article a {
-	display: block;
-	color: #0cd6b4;
-	font-size: 1.2em;
-	margin-bottom: 10px;
-	text-align: center;
-}
-
-/********** ARTICLE ****/
-
-.article-detail {
-	text-align: center;
-	margin-bottom: 100px;
-}
-
-.article-detail h2 {
-	color: #0cd6b4;
-	margin-bottom: 25px;
-}
-
-.auth {
-	font-size: 0.8em;
-	margin-top: 20px;
-}
-
-hr {
-	margin: 25px 0;
-}
-
-.comment-article {
-	width: 30%;
-	margin: auto;
-}
-.comment-article article {
-	margin: 20px;
-}
-
-.comment-article article div {
-	display: flex;
-	justify-content: space-between;
-}
-.comment-article h3 {
-	color: #32d37b;
-	font-size: 1.2em;
-}
-
-.comment-article p {
-	text-align: left;
-	margin: 5px;
-	font-size: 0.9em;
-}
-
-.comment-article p.date-comment {
-	font-size: 0.7em;
-}
-
 .divider {
 	height: 1px;
 	width: 80px;
 	background-color: grey;
-	margin: auto;
+	margin: 25px auto;
 }
 
-/********** ADMIN ****/
-/* 
-#admin-panel h2 {
-	color: #333;
+hr{
+	margin: 20px 0;
 }
 
-#admin-panel {
-	padding: 0;
-	width: 100vw;
-	min-height: 50vh;
-	display: flex;
-	flex-direction: row;
+
+/********** FORM **********/
+
+form {
+	width: 50%;
+	margin: 20px auto;
 }
 
-.main-ctn{
-	width: 30%;
-	background-color: #0cd6b4;
+fieldset{
 	display: flex;
 	flex-direction: column;
-	
+	width: 100%;
+	margin: auto;
+	padding: 1%;
+	border-radius: 10px;
 }
 
-.main-ctn a {
-	padding: 2% 0 2% 5%;
-	margin-top: 3%;
-	text-decoration: none;
-	color: #333;
+input[type="text"] {
+	margin: 10px 0 ;
 }
 
-.main-ctn a.active {
-	background-color: #c2ebe4;
-}
-
-.secondary-ctn{
-	width: 70%;
-	background-color: #c2ebe4;
+input[type="submit"] {
+	width: fit-content;
 	padding: 2%;
-} */
+	text-transform: uppercase;
+	margin: 10px auto;
+}
+
+/********************/
+/********************/
+
+#detail h2 {
+	width: 70%;
+	margin: auto;
+	color: #0cd6b4;
+	text-decoration: underline;
+}
+
+#detail section {
+	text-align: center;
+}
+
+#detail article {
+	display: flex;
+	flex-wrap: wrap;
+	width: 50%;
+	margin: 25px auto;
+}
+
+#detail h3 {
+	color: #0cd6b4;
+	width: 50%;
+	text-align: left;
+}
+
+article p:nth-child(2){
+	width: 50%;
+	text-align: right;
+}
+article p:nth-child(3){
+	padding: 2%;
+	width: 100%;
+	text-align: left;
+}
+
+/********************/
+/********************/
+
+/********** ADMIN ****/
+
+
+
 /********** FOOTER *************/
 
-.blog-footer {
-	background-color: #0cd6b4;
-	text-align: center;
-	padding: 25px;
-}

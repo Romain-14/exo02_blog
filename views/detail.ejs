@@ -1,0 +1,44 @@
+<main id="detail">
+
+    <a href="/" class="back">retour</a>
+    <section>
+        <!-- article sur lequel on a cliqué -->
+        <h2><%= post.Title %></h2>
+        <p><%= post.Contents %></p>
+        <p><small>By <%= post.FirstName %> <%= post.LastName %></small></p>
+    </section>
+
+    <hr>
+
+    <section>
+        <!-- liste des commentaires liés à l'article -->
+        <% for(const comment of comments) { %>
+            <% if(comment.NickName !== "" || comment.Contents !== "") { %> 
+            <article>
+                <h3><%= comment.NickName %></h3>
+                <p><%= comment.CreationTimestamp.toLocaleDateString() %></p>
+                <p><%= comment.Contents %> </p>
+                <div class="divider"></div>
+            </article>
+            <% } %>
+        <% } %>
+
+    </section>
+
+    <hr>
+
+    <form action="/add_comment/<%= post.postID%>" method="post">
+
+        <fieldset>
+            <legend>Balance ton com' wesh !</legend>
+            <input type="text" name="alias" placeholder="alias">
+            <textarea name="comm" id="comm" placeholder="ton comm'"></textarea>
+            <input type="submit" value="send">
+        </fieldset>
+
+    </form>
+
+
+
+
+</main>

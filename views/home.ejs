@@ -1,0 +1,19 @@
+<main id="home">
+    <h2>welcome to my blog</h2>
+
+    <section>
+        <% for(const post of posts) { %> 
+
+            <article>
+                <a href="/detail/<%= post.postID %>">
+                    <h3><%= post.Title %></h3>
+                    <p><%= post.Contents %></p>
+                    <p>By <%= post.FirstName %> <%= post.LastName %></p>
+                    <p><%= post.CreationTimestamp.toLocaleDateString() %></p>
+                </a>
+            </article>
+
+        <% } %> 
+    </section>
+    
+</main>
