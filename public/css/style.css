@@ -102,25 +102,25 @@ input[type="submit"] {
 /********************/
 /********************/
 
-#detail h2 {
+#story h2 {
 	width: 70%;
 	margin: auto;
 	color: #0cd6b4;
 	text-decoration: underline;
 }
 
-#detail section {
+#story section {
 	text-align: center;
 }
 
-#detail article {
+#story article {
 	display: flex;
 	flex-wrap: wrap;
 	width: 50%;
 	margin: 25px auto;
 }
 
-#detail h3 {
+#story h3 {
 	color: #0cd6b4;
 	width: 50%;
 	text-align: left;

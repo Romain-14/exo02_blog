@@ -19,35 +19,98 @@ app.use(express.static(path.join(__dirname + "/public")));
 
 // middleware express natif qui permets de récupérer les données post afin de les parser
 app.use(express.json()); // pour parser le content-type application/json
-app.use(express.urlencoded({extended: true})); // pour parser les données formulaire post
+app.use(express.urlencoded({extended: true})); // pour parser les données formulaire post 
 // anciennement librairie body-parser qu'il fallait import en tant que module avant la version 4.x d'express
 
-app.get("/", async (req,res,next)=>{
-   
+// ROUTES
+/*** HOME ***/
+// get page (obtention de la page "/" (home) avec tous les articles(les posts/story))
+app.get("/", async (req,res,next)=>{   
     const [posts] = await pool.execute(`SELECT post.Id AS postID, Title, Contents, CreationTimestamp, FirstName, LastName, Author_Id  FROM post JOIN author ON author.Id = post.Author_Id`);
-
-    res.render("layout", {template: "home", posts: posts});
-
+    res.render("layout", {template: "pages/home", posts: posts});
 });
 
-app.get("/detail/:id", async (req, res, next)=>{
+/*** STORY ***/
+// get page (obtention de la page "/story" (l'article sur lequel on a cliqué) avec ces commentaires associés)
+app.get("/story/:id", async (req, res, next)=>{
     const [post] = await pool.execute(`SELECT Post.Id AS postID, Title, Contents, FirstName, LastName FROM post JOIN author ON author.Id = post.Author_Id`);
 
     const [comments] = await pool.execute(`SELECT NickName, Contents, CreationTimestamp FROM comment WHERE Post_Id = ? ORDER BY CreationTimestamp DESC`, [req.params.id]);
 
-    res.render('layout', {template: "detail", post: post[0], comments: comments});
+    res.render('layout', {template: "pages/story", post: post[0], comments: comments});
 });
 
+// post comment (envoi d'un commentaire dans la BDD)
 app.post("/add_comment/:postID", async (req,res,next)=>{
     console.log(req.params.postID);
-    // les données de l'input seront stockés la propriété body
+    // les données de l'input seront stockés dans la propriété body graçe à app.use(express.urlencoded({extended: true})); 
     console.log(req.body.alias); // --> stockera la value de l'input avec comme attribut name alias 
     console.log(req.body.comm);
     // requête d'insertion (POST) pour enregistrer les données du formulaire dans la bd
     const [result] = await pool.execute(`INSERT INTO comment (NickName, Contents, CreationTimestamp, Post_Id) VALUES( ?, ?, NOW(), ?) `, [req.body.alias, req.body.comm, req.params.postID]);
     console.log(result);
     // quand la requête est terminée on redirige vers la page /detail/idDuPost et on retourne de fait sur la route get de la ligne 33
-    res.redirect(`/detail/${req.params.postID}`);
+    res.redirect(`/pages/story/${req.params.postID}`);
+});
+
+// ADMIN
+// get admin page (obtention de la page admin)
+app.get("/admin", async (req,res,next)=>{
+    const [stories] = await pool.execute(`SELECT post.Id AS postID, category.Name AS category_title, author.Id, Author_Id, Title, Contents, CreationTimestamp, FirstName, LastName FROM post JOIN author ON author.Id = post.Author_Id JOIN category ON category.Id = post.Category_Id`);
+
+    res.render("layout", {template:"pages/admin/admin", stories:stories})
+});
+
+// get add story (obtention de la page avec le formulaire pour ajouter une story)
+app.get("/admin/story/add", async(req,res,next)=>{
+    const [categories] = await pool.execute(`SELECT Id, Name FROM category`);
+    const [authors] = await pool.execute(`SELECT Id, FirstName, LastName FROM author`);
+
+    res.render("layout", {template: "pages/admin/story/add", categories: categories, authors:authors});
+});
+
+// post add story envoi des données du formulaire dans la BDD
+app.post("/admin/story/add", async (req,res,next)=>{
+    try {
+        console.log(req.body);
+        const {title, story, author, category} = req.body;
+        const [result] = await pool.execute(`INSERT INTO post (Title,Contents, CreationTimestamp, Author_Id, Category_Id) VALUES (?, ?, NOW(), ?, ?)`, [title, story, author, category]);
+
+        if(result.affectedRows){
+            res.redirect("/admin")
+        }
+    } catch (error) {
+        console.log(error)
+    }
+});
+
+// get edit page
+app.get("/admin/story/edit/:postID", async (req,res,next)=>{
+    const [story] = await pool.execute("SELECT post.Id AS postID, Title, Contents FROM post WHERE post.Id = ?", [req.params.postID]);    
+    res.render("layout", {template: "pages/admin/story/edit", story: story[0]})
+});
+
+// post edit
+app.post("/admin/story/edit/:postID",  async (req,res,next)=> {
+    try {
+        const {title, story} = req.body;
+        const [result] = await pool.execute(`UPDATE post SET Title = ?, Contents = ? WHERE Id = ?`, [title, story, req.params.postID]);
+        console.log(result);
+        res.redirect("/admin");
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+// get delete story
+app.get("/admin/story/delete/:postID", async (req,res,next)=>{
+    try {
+        const [result] = await pool.execute("DELETE FROM post WHERE Id = ? ", [req.params.postID]);
+        console.log(result)
+        res.redirect("/admin");
+    } catch (error) {
+        console.log(error)
+    }
 });
 
 app.listen(PORT, ()=> {

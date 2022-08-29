@@ -1,0 +1,29 @@
+<main id="add-story">
+
+    <form action="/admin/story/add" method="post">
+
+        <fieldset>
+            <legend>add a story</legend>
+
+            <input type="text" name="title" id="title" placeholder="titre">
+            <textarea name="story" id="story" placeholder="votre story de fifou"></textarea>
+            <select name="category" id="category">
+                <% for(const category of categories){ %>
+                    <option value="<%= category.Id %>"><%= category.Name %></option>                    
+                <% } %> 
+            </select>
+            <select name="author" id="author">
+                <% for(const author of authors){ %>
+                    <option value="<%= author.Id %>"><%= author.FirstName %> <%= author.LastName %></option>                    
+                <% } %> 
+            </select>
+
+            <input type="submit" value="Balance ta story !!">
+
+        </fieldset>
+
+    </form>
+
+
+
+</main>

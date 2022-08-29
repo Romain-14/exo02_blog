@@ -1,0 +1,16 @@
+<main id="edit-story">
+
+    <form action="/admin/story/edit/<%= story.postID %> " method="post">
+
+        <fieldset>
+            <legend></legend>
+
+            <input type="text" name="title" id="title" placeholder="title zebi" value="<%= story.Title %>">
+            <textarea name="story" id="story" placeholder="your com'"><%= story.Contents %></textarea>
+
+            <input type="submit" value="send">
+        </fieldset>
+
+    </form>
+
+</main>
