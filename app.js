@@ -2,6 +2,7 @@ import express from 'express';
 import 'dotenv/config';
 import {fileURLToPath} from 'url';
 import path from 'path';
+import parseurl from 'parseurl';
 
 import {PORT} from './lib/index.js';
 import pool from './database/db.js';
@@ -21,6 +22,28 @@ app.use(express.static(path.join(__dirname + "/public")));
 app.use(express.json()); // pour parser le content-type application/json
 app.use(express.urlencoded({extended: true})); // pour parser les données formulaire post 
 // anciennement librairie body-parser qu'il fallait import en tant que module avant la version 4.x d'express
+
+const adminIsLogged = false;
+app.use((req,res,next)=>{
+    // on affecte une nouvelle key à la propriété locals qui correspond à la valeur adminIsLogged et qu'on va pouvoir utiliser pour faire des vérifications coté (vue/view) dans le header par exemple
+    res.locals.adminIsLogged = adminIsLogged;
+    // et on passe à la fonctionnalité suivante avec next() qui est la fonction use pour vérifier l’accès aux urls
+    next();
+});
+
+app.use((req,res, next)=>{
+    // utilisation de la librairie parseurl, qui permets de mettre en cache et de fait avoir un rendement optimisé de notre application
+    // à chaque instanciation on récupère l'url dans une variable pathname
+    const pathname = parseurl(req).pathname;
+    console.log(pathname)
+    // on s'en sert pour vérifier que l'utilisateur est autorisé à acceder à certains lieu de notre app'
+    // en l’occurrence, ici, on bloque l’accès à toutes pages qui contiennent le paramètre "/admin" SI l'admin n'est pas connecté, c'est le cas avec la simulation de la connexion avec la "const adminIsLogged = false;"
+    if(pathname.includes("/admin") && !adminIsLogged) {
+        res.redirect("/");
+    } else {        
+        next();
+    }
+});
 
 // ROUTES
 /*** HOME ***/
@@ -46,7 +69,7 @@ app.post("/add_comment/:postID", async (req,res,next)=>{
     // les données de l'input seront stockés dans la propriété body graçe à app.use(express.urlencoded({extended: true})); 
     console.log(req.body.alias); // --> stockera la value de l'input avec comme attribut name alias 
     console.log(req.body.comm);
-    // requête d'insertion (POST) pour enregistrer les données du formulaire dans la bd
+    // requête d'insertion (POST) pour enregistrer les données du formulaire dans la bdd
     const [result] = await pool.execute(`INSERT INTO comment (NickName, Contents, CreationTimestamp, Post_Id) VALUES( ?, ?, NOW(), ?) `, [req.body.alias, req.body.comm, req.params.postID]);
     console.log(result);
     // quand la requête est terminée on redirige vers la page /detail/idDuPost et on retourne de fait sur la route get de la ligne 33

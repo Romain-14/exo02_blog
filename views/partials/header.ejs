@@ -2,6 +2,8 @@
     <h1>blog</h1>
     <nav>
         <a href="/">home</a>
-        <a href="/admin">admin</a>
+        <% if(locals.adminIsLogged) {%> 
+            <a href="/admin">admin</a>
+        <% } %> 
     </nav>
 </header>
