@@ -1,0 +1,29 @@
+<main id="entry">
+    <% if(typeform === "signin") { %> 
+    <form action="/entry/signin" method="post">
+
+        <fieldset>
+            <legend>signin</legend>
+            <input type="text" name="alias" placeholder="alias">
+            <input type="password" name="password" placeholder="password">
+            <input type="submit" value="sign in">
+            <% if(locals.error) {%>
+                <p><%= locals.error %> </p>
+            <% } %> 
+        </fieldset>
+    </form>
+    <p>No account yet ? Register <a href="/entry/signup">here</a></p>
+    <% } else { %>
+        <form action="/entry/signup" method="post">
+
+            <fieldset>
+                <legend>signup</legend>
+                <input type="text" name="alias" placeholder="alias">
+                <input type="password" name="password" placeholder="password">
+                <input type="submit" value="sign up">
+            </fieldset>
+        </form>       
+
+    <% } %> 
+
+</main>

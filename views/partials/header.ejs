@@ -5,5 +5,10 @@
         <% if(locals.adminIsLogged) {%> 
             <a href="/admin">admin</a>
         <% } %> 
+        <% if(locals.session.isLogged) { %>
+            <a href="dahsboard">dashboard</a>
+        <% } else { %>
+            <a href="/entry">sign in/up</a>            
+        <% } %> 
     </nav>
 </header>

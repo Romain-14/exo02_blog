@@ -1,5 +1,5 @@
 <main id="home">
-    <h2>welcome to my blog</h2>
+    <h2>welcome to my blog <%= locals.session.user?.alias %> </h2>
 
     <section>
         <% for(const post of posts) { %> 

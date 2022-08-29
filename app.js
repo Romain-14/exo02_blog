@@ -41,13 +41,14 @@ app.use(session({
 app.use((req, res, next)=>{
     // console.log("req.session ----->",req.session);
     res.locals.session = req.session;
+    res.locals.error = null;
     
     if(!req.session.user){
         req.session.user = null;
         req.session.isLogged = false;
     }
     
-    // console.log("res.locals.session ---->",res.locals.session);
+    console.log("res.locals.session ---->",res.locals.session);
     next();
 });
 
@@ -103,6 +104,35 @@ app.post("/add_comment/:postID", async (req,res,next)=>{
     console.log(result);
     // quand la requête est terminée on redirige vers la page /detail/idDuPost et on retourne de fait sur la route get de la ligne 33
     res.redirect(`/pages/story/${req.params.postID}`);
+});
+
+// USER
+// get entry page
+app.get("/entry/:signup?", (req,res,next) =>{
+    res.render("layout", {template: "pages/user/entry", typeform: !req.params.signup ? "signin" : "signup" });
+});
+
+// post register user
+app.post("/entry/signup", (req,res,next)=>{
+    const {alias, password} = req.body;
+    req.session.user = {alias: alias, password: password};
+    res.redirect("/entry");
+    // pour le refacto, enregistrer l'user dans la bdd avec le mdp crypté
+    // vérifié en amont que l'email n'existe pas déjà en bdd !!!
+});
+
+app.post("/entry/signin", (req,res,next)=>{
+    const {alias, password} = req.body;
+    if(alias === req.session?.user.alias && password === req.session?.user.password){
+        req.session.isLogged = true;
+        res.redirect("/");
+    } else {
+        res.locals.error = "bad alias/password";
+        res.render("layout", {template: "pages/user/entry", typeform: !req.params.signup ? "signin" : "signup"})
+    }
+    // pour le refacto, en amont vérifier que l'adresse mail existe si non l'invité à créer un compte
+    // si le mail existe il faut vérifier la correspondance entre les mdp
+    // et on enregistre les données en session
 });
 
 // ADMIN
