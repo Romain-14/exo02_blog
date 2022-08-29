@@ -3,6 +3,7 @@ import 'dotenv/config';
 import {fileURLToPath} from 'url';
 import path from 'path';
 import parseurl from 'parseurl';
+import session from 'express-session';
 
 import {PORT} from './lib/index.js';
 import pool from './database/db.js';
@@ -22,6 +23,34 @@ app.use(express.static(path.join(__dirname + "/public")));
 app.use(express.json()); // pour parser le content-type application/json
 app.use(express.urlencoded({extended: true})); // pour parser les données formulaire post 
 // anciennement librairie body-parser qu'il fallait import en tant que module avant la version 4.x d'express
+
+// EXPRESS-SESSION mise en place
+app.use(session({
+    secret: "j'aime les chats bien cuits",
+    // true permets de forcer la sauvegarder de la session même sans modification, évite de créer des conflit en cas de requête parallèle
+    resave: true, // par default c'est save mais on le doit spécifier même si on veut la valeur à true
+    // comme resave mais joue sur une nouvelle instance de la session 
+    saveUninitialized: true, // par default c'est save mais on le doit spécifier même si on veut la valeur à true
+    proxy: true,
+    cookie: {
+        maxAge: 24 * 60 * 60, // durée de vie de 1 journée -> 86 400 secondes
+        secure: process.env.NOVE_ENV && process.env.NOVE_ENV === "production" ? true : false,
+    },
+}));
+
+app.use((req, res, next)=>{
+    // console.log("req.session ----->",req.session);
+    res.locals.session = req.session;
+    
+    if(!req.session.user){
+        req.session.user = null;
+        req.session.isLogged = false;
+    }
+    
+    // console.log("res.locals.session ---->",res.locals.session);
+    next();
+});
+
 
 const adminIsLogged = false;
 app.use((req,res,next)=>{
