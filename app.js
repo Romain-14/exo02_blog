@@ -33,7 +33,7 @@ app.use(session({
     saveUninitialized: true, // par default c'est save mais on le doit spécifier même si on veut la valeur à true
     proxy: true,
     cookie: {
-        maxAge: 24 * 60 * 60, // durée de vie de 1 journée -> 86 400 secondes
+        maxAge: 24 * 60 * 60 * 1000, // durée de vie de 1 journée -> 86 400 000 secondes
         secure: process.env.NOVE_ENV && process.env.NOVE_ENV === "production" ? true : false,
     },
 }));
@@ -123,7 +123,7 @@ app.post("/entry/signup", (req,res,next)=>{
 
 app.post("/entry/signin", (req,res,next)=>{
     const {alias, password} = req.body;
-    if(alias === req.session?.user.alias && password === req.session?.user.password){
+    if(alias === req.session.user?.alias && password === req.session.user?.password){
         req.session.isLogged = true;
         res.redirect("/");
     } else {
