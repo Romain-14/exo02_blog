@@ -4,6 +4,7 @@ import {fileURLToPath} from 'url';
 import path from 'path';
 import parseurl from 'parseurl';
 import session from 'express-session';
+import bcrypt from 'bcrypt';
 
 import {PORT} from './lib/index.js';
 import pool from './database/db.js';
@@ -48,18 +49,18 @@ app.use((req, res, next)=>{
         req.session.isLogged = false;
     }
     
-    console.log("res.locals.session ---->",res.locals.session);
+    // console.log("res.locals.session ---->",res.locals.session);
     next();
 });
 
 
-const adminIsLogged = false;
-app.use((req,res,next)=>{
-    // on affecte une nouvelle key à la propriété locals qui correspond à la valeur adminIsLogged et qu'on va pouvoir utiliser pour faire des vérifications coté (vue/view) dans le header par exemple
-    res.locals.adminIsLogged = adminIsLogged;
-    // et on passe à la fonctionnalité suivante avec next() qui est la fonction use pour vérifier l’accès aux urls
-    next();
-});
+// const adminIsLogged = false;
+// app.use((req,res,next)=>{
+//     // on affecte une nouvelle key à la propriété locals qui correspond à la valeur adminIsLogged et qu'on va pouvoir utiliser pour faire des vérifications coté (vue/view) dans le header par exemple
+//     res.locals.adminIsLogged = adminIsLogged;
+//     // et on passe à la fonctionnalité suivante avec next() qui est la fonction use pour vérifier l’accès aux urls
+//     next();
+// });
 
 app.use((req,res, next)=>{
     // utilisation de la librairie parseurl, qui permets de mettre en cache et de fait avoir un rendement optimisé de notre application
@@ -106,33 +107,65 @@ app.post("/add_comment/:postID", async (req,res,next)=>{
     res.redirect(`/pages/story/${req.params.postID}`);
 });
 
-// USER
+// ENTRY
 // get entry page
 app.get("/entry/:signup?", (req,res,next) =>{
     res.render("layout", {template: "pages/user/entry", typeform: !req.params.signup ? "signin" : "signup" });
 });
 
 // post register user
-app.post("/entry/signup", (req,res,next)=>{
-    const {alias, password} = req.body;
-    req.session.user = {alias: alias, password: password};
-    res.redirect("/entry");
+app.post("/entry/signup", async (req,res,next)=>{
+    const saltrounds = 10;
+    const {email, password} = req.body;
+    console.log(email, password)
+    // req.session.user = {email: email, password: password};
+    // res.redirect("/entry");
     // pour le refacto, enregistrer l'user dans la bdd avec le mdp crypté
     // vérifié en amont que l'email n'existe pas déjà en bdd !!!
+    const [user] = await pool.execute(`SELECT * from user WHERE Email= ?`, [email]);
+    console.log(user)
+    if(!user[0]){
+        const hash = await bcrypt.hash(password, saltrounds);
+        const [userSave] = await pool.execute(`INSERT INTO user (Email, Password, Role) VALUE(?,?,"user")`, [email, hash]);
+        console.log(userSave);
+        res.redirect("/entry");
+    } else {
+        res.json({
+            msg:"Cet utilisateur existe déjà !!"
+        })
+    }
 });
 
-app.post("/entry/signin", (req,res,next)=>{
-    const {alias, password} = req.body;
-    if(alias === req.session.user?.alias && password === req.session.user?.password){
-        req.session.isLogged = true;
-        res.redirect("/");
-    } else {
-        res.locals.error = "bad alias/password";
-        res.render("layout", {template: "pages/user/entry", typeform: !req.params.signup ? "signin" : "signup"})
-    }
+app.post("/entry/signin", async (req, res, next)=>{
+    const {email, password} = req.body;
+    // if(email === req.session.user?.email && password === req.session.user?.password){
+    //     req.session.isLogged = true;
+    //     res.redirect("/");
+    // } else {
+    //     res.locals.error = "bad email/password";
+    //     res.render("layout", {template: "pages/user/entry", typeform: !req.params.signup ? "signin" : "signup"})
+    // }
     // pour le refacto, en amont vérifier que l'adresse mail existe si non l'invité à créer un compte
     // si le mail existe il faut vérifier la correspondance entre les mdp
-    // et on enregistre les données en session
+    // et on enregistre les données en session  
+    // requete pour récupérer l'user par son email
+    const [user] = await pool.execute(`SELECT * FROM user WHERE Email = ?`, [email]);
+    
+    // on affecte un boolean à isSamePwd en fonction de si la requête nous a retourné un user et en fonction de la comparaison du mdp
+    const isSamePwd = user[0] ? await bcrypt.compare(password, user[0].Password) : null; // null/false
+    
+    // si pas d'user avec ce mail OU que le mdp comparé n'est pas bon on affiche un message d'erreur, en "rafraîchissant" la page 
+    if(!user[0] || !isSamePwd) {
+        res.locals.error = "Bad Email or/and Password";
+
+        res.render("layout", {template: "user/entry", typeform: !req.params.signup ? "signin" : "signup"});
+
+    } else { // sinon on effectue la connexion
+        req.session.user = {email: email, role: user[0].Role};
+        req.session.isLogged = true;
+        res.redirect('/');
+    }
+
 });
 
 // ADMIN
@@ -194,6 +227,8 @@ app.get("/admin/story/delete/:postID", async (req,res,next)=>{
         console.log(error)
     }
 });
+
+
 
 app.listen(PORT, ()=> {
     console.log(`Listening at http://localhost:${PORT}`)
